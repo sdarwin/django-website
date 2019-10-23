@@ -5,6 +5,13 @@ pipeline {
         DEPLOY = 'yes'
     }
     stages {
+      stage('Prepare') {
+          steps {
+           script {
+      if (!env.ENVIRONMENT) {
+        env.ENVIRONMENT = "production"
+      }
+      }}}
         stage('Test') {
             when { environment name: 'TEST', value: 'yes' }
             steps {
@@ -27,7 +34,7 @@ python manage.py test polls
             checkout([$class: 'GitSCM', branches: [[name: '*/master']],
      userRemoteConfigs: [[url: 'git@github.com:sdarwin/django-website.git']]])
      sshagent (credentials: ['b8c5efcc-d20a-4b4b-a6c4-090d619dee0e']) {
-       build 'terraform-production'
+       build "terraform-$ENVIRONMENT"
             }
         }
     }
